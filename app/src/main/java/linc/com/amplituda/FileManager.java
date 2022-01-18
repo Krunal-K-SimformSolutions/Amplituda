@@ -12,11 +12,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
-
 
 final class FileManager {
 
@@ -71,18 +69,24 @@ final class FileManager {
         }
     }
 
+    synchronized boolean isAudioType(String path) {
+        String mimeType = URLConnection.guessContentTypeFromName(path);
+        return mimeType != null && mimeType.startsWith("audio");
+    }
+
     /**
      * Copy audio from URL to local storage
      * @param audioUrl - audio file url
      * @return audio file from local storage
      */
     synchronized File getUrlFile(final String audioUrl, final AmplitudaProgressListener listener) {
+        String extension = isAudioType(audioUrl) ? MimeTypeMap.getFileExtensionFromUrl(audioUrl) : "mp3";
         File temp = new File(String.format(
                 Locale.US,
                 "%s%s.%s",
                 cache,
                 RAW_TEMP,
-                MimeTypeMap.getFileExtensionFromUrl(audioUrl)
+                extension
         ));
 
         try {
